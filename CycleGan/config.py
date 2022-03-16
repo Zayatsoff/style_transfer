@@ -16,6 +16,7 @@ config = {
     "EPOCHS": 200,
     "LOAD_MODEL": True,
     "SAVE_MODEL": True,
+    "TRAIN_DIR": "./data/train",
 }
 
 transforms = A.Compose(
@@ -25,5 +26,5 @@ transforms = A.Compose(
         A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
         ToTensorV2,
     ],
-    additional_targets={"image0":"image"}
+    additional_targets={"image0": "image"},
 )

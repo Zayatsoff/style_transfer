@@ -58,6 +58,47 @@ class Gen(nn.Module):
             ]
         )
 
-        self.redisual_blocks = nn.Sequential(
+        self.residual_blocks = nn.Sequential(
             *[ResidualBlock(num_features * 4) for _ in range(num_residual)]
         )
+
+        self.up_blocks = nn.ModuleList(
+            [
+                ConvBlock(
+                    num_features * 4,
+                    num_features * 2,
+                    down=False,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1,
+                    output_padding=1,
+                ),
+                ConvBlock(
+                    num_features * 2,
+                    num_features,
+                    down=False,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1,
+                    output_padding=1,
+                ),
+            ]
+        )
+
+        self.last = nn.Conv2d(
+            num_features,
+            img_channels,
+            kernel_size=7,
+            stride=1,
+            padding=3,
+            padding_mode="reflect",
+        )
+
+    def forward(self, x):
+        x = self.initial(x)
+        for layer in self.down_blocks:
+            x = layer(x)
+        x = self.residual_blocks(x)
+        for layer in self.up_blocks:
+            x = layer(x)
+        return torch.tanh(self.last(x))

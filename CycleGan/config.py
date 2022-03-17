@@ -5,18 +5,19 @@ from albumentations.pytorch import ToTensorV2
 config = {
     "BATCH_SIZE": 1,
     "LR": 2e-4,
-    "SAVE_DIR_GEN_H": "./saves/gen_h.pack",
-    "SAVE_DIR_GEN_Z": "./saves/gen_z.pack",
-    "SAVE_DIR_DISC_H": "./saves/disc_h.pack",
-    "SAVE_DIR_DISC_Z": "./saves/disc_z.pack",
+    "SAVE_DIR_GEN_H": "/saves/gen_h.pth.tar",
+    "SAVE_DIR_GEN_Z": "/saves/gen_z.pth.tar",
+    "SAVE_DIR_DISC_H": "/saves/disc_h.pth.tar",
+    "SAVE_DIR_DISC_Z": "/saves/disc_z.pth.tar",
     "DEVICE": "cuda",
-    "LAMBADA_IDENTITY": 0.0,
-    "LAMBADA_CYCLE": 10,
+    "LAMBDA_IDENTITY": 0.0,
+    "LAMBDA_CYCLE": 10,
     "NUM_WORKERS": 4,
     "EPOCHS": 200,
-    "LOAD_MODEL": True,
+    "LOAD_MODEL": False,
     "SAVE_MODEL": True,
     "TRAIN_DIR": "./data/train",
+    "TEST_DIR": "./data/test",
 }
 
 transforms = A.Compose(

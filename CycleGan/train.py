@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 
 def train_fn(
-    disc_H, disc_Z, gen_Z, gen_H, loader, opt_disc, l1, mse, d_scaler, g_scaler
+    disc_H, disc_Z, gen_Z, gen_H, loader, opt_disc, opt_gen, l1, mse, d_scaler, g_scaler
 ):
     loop = tqdm(loader, leave=True)
     for idx, (zebra, horse) in enumerate(loop):
@@ -71,6 +71,14 @@ def train_fn(
                 + identity_horse_loss * config["LAMBDA_IDENTITY"]
                 + identity_zebra_loss * config["LAMBDA_IDENTITY"]
             )
+
+        opt_gen.zero_grad()
+        g_scaler.scale(G_loss).backward()
+        g_scaler.step(opt_gen)
+        g_scaler.update()
+        if idx % 200 == 0:
+            save_image(fake_horse * 0.5 * 0.5, f"saved_image/horse_{idx}.png")
+            save_image(fake_zebra * 0.5 * 0.5, f"saved_image/zebra_{idx}.png")
 
 
 def main():

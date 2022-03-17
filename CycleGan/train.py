@@ -5,7 +5,7 @@ from utils import save_checkpoint, load_checkpoint
 from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.optim as optim
-import config
+from config import config, transforms
 from torchvision.utils import save_image
 from disc_model import Disc
 from gen_model import Gen
@@ -58,18 +58,18 @@ def train_fn(
             cycle_zebra_loss = l1(zebra, cycle_zebra)
             cycle_horse_loss = l1(horse, cycle_horse)
             # indentity loss
-            indentity_zebra = gen_Z(zebra)
-            indentity_horse = gen_H(horse)
-            identity_zebra_loss = l1(zebra, indentity_zebra)
-            identity_horse_loss = l1(horse, indentity_horse)
+            # indentity_zebra = gen_Z(zebra)
+            # indentity_horse = gen_H(horse)
+            # identity_zebra_loss = l1(zebra, indentity_zebra)
+            # identity_horse_loss = l1(horse, indentity_horse)
             # add together
             G_loss = (
                 loss_G_Z
                 + loss_G_H
                 + cycle_zebra_loss * config["LAMBDA_CYCLE"]
                 + cycle_horse_loss * config["LAMBDA_CYCLE"]
-                + identity_horse_loss * config["LAMBDA_IDENTITY"]
-                + identity_zebra_loss * config["LAMBDA_IDENTITY"]
+                # + identity_horse_loss * config["LAMBDA_IDENTITY"]
+                # + identity_zebra_loss * config["LAMBDA_IDENTITY"]
             )
 
         opt_gen.zero_grad()
@@ -84,8 +84,8 @@ def train_fn(
 def main():
     disc_H = Disc(in_channels=3).to(config["DEVICE"])
     disc_Z = Disc(in_channels=3).to(config["DEVICE"])
-    gen_Z = Gen(img_channels=3, num_residuals=9).to(config["DEVICE"])
-    gen_H = Gen(img_channels=3, num_residuals=9).to(config["DEVICE"])
+    gen_Z = Gen(img_channels=3, num_residual=9).to(config["DEVICE"])
+    gen_H = Gen(img_channels=3, num_residual=9).to(config["DEVICE"])
     opt_disc = optim.Adam(
         list(disc_H.parameters()) + list(disc_Z.parameters()),
         lr=config["LR"],
@@ -130,12 +130,12 @@ def main():
     dataset = HorseZebraDataset(
         root_horse=config["TRAIN_DIR"] + "/horses",
         root_zebra=config["TRAIN_DIR"] + "/zebras",
-        transform=config.transforms,
+        transform=transforms,
     )
     val_dataset = HorseZebraDataset(
-        root_horse="cyclegan_test/horse1",
-        root_zebra="cyclegan_test/zebra1",
-        transform=config.transforms,
+        root_horse=config["TEST_DIR"] + "/horses",
+        root_zebra=config["TEST_DIR"] + "/zebras",
+        transform=transforms,
     )
     val_loader = DataLoader(
         val_dataset,

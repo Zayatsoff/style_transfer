@@ -43,7 +43,7 @@ class Gen(nn.Module):
             ),
             nn.ReLU(inplace=True),
         )
-        self.down_blocks = nn.Sequential(
+        self.down_blocks = nn.ModuleList(
             [
                 ConvBlock(
                     num_features, num_features * 2, kernel_size=3, stride=2, padding=1

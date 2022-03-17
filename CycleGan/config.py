@@ -10,7 +10,7 @@ config = {
     "SAVE_DIR_DISC_H": "./saves/disc_h.pack",
     "SAVE_DIR_DISC_Z": "./saves/disc_z.pack",
     "DEVICE": "cuda",
-    "LAMBADA_INDENTITY": 0.0,
+    "LAMBADA_IDENTITY": 0.0,
     "LAMBADA_CYCLE": 10,
     "NUM_WORKERS": 4,
     "EPOCHS": 200,

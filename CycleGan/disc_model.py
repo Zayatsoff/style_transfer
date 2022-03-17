@@ -6,7 +6,7 @@ class Block(nn.Module):
     def __init__(self, in_channels, out_channels, stride):
         super(Block, self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv2D(
+            nn.Conv2d(
                 in_channels,
                 out_channels,
                 4,
@@ -42,11 +42,11 @@ class Disc(nn.Module):
         in_channels = features[0]
         for feature in features[1:]:
             layers.append(
-                Block(in_channels, features, stride=1 if feature == features[-1] else 2)
+                Block(in_channels, feature, stride=1 if feature == features[-1] else 2)
             )
             in_channels = feature
         layers.append(
-            nn.Conv2D(
+            nn.Conv2d(
                 in_channels,
                 1,
                 kernel_size=4,

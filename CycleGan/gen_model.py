@@ -3,12 +3,12 @@ import torch.nn as nn
 
 
 class ConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, down=True, use_act=True, **kwards):
+    def __init__(self, in_channels, out_channels, down=True, use_act=True, **kwargs):
         super(ConvBlock, self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, padding_mode="reflect", **kwards)
+            nn.Conv2d(in_channels, out_channels, padding_mode="reflect", **kwargs)
             if down
-            else nn.ConvTranspose2d(in_channels, out_channels, **kwards),
+            else nn.ConvTranspose2d(in_channels, out_channels, **kwargs),
             nn.InstanceNorm2d(out_channels),
             nn.ReLU(inplace=True) if use_act else nn.Identity(),
         )
@@ -30,7 +30,7 @@ class ResidualBlock(nn.Module):
 
 
 class Gen(nn.Module):
-    def __init__(self, img_channels, num_features=64, num_residual=9):
+    def __init__(self, img_channels, num_features=64, num_residuals=9):
         super(Gen, self).__init__()
         self.initial = nn.Sequential(
             nn.Conv2d(
@@ -41,6 +41,7 @@ class Gen(nn.Module):
                 padding=3,
                 padding_mode="reflect",
             ),
+            nn.InstanceNorm2d(num_features),
             nn.ReLU(inplace=True),
         )
         self.down_blocks = nn.ModuleList(
@@ -59,7 +60,7 @@ class Gen(nn.Module):
         )
 
         self.residual_blocks = nn.Sequential(
-            *[ResidualBlock(num_features * 4) for _ in range(num_residual)]
+            *[ResidualBlock(num_features * 4) for _ in range(num_residuals)]
         )
 
         self.up_blocks = nn.ModuleList(

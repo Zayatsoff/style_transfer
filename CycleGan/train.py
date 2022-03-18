@@ -84,8 +84,8 @@ def train_fn(
 def main():
     disc_H = Disc(in_channels=3).to(config["DEVICE"])
     disc_Z = Disc(in_channels=3).to(config["DEVICE"])
-    gen_Z = Gen(img_channels=3, num_residual=9).to(config["DEVICE"])
-    gen_H = Gen(img_channels=3, num_residual=9).to(config["DEVICE"])
+    gen_Z = Gen(img_channels=3, num_residuals=9).to(config["DEVICE"])
+    gen_H = Gen(img_channels=3, num_residuals=9).to(config["DEVICE"])
     opt_disc = optim.Adam(
         list(disc_H.parameters()) + list(disc_Z.parameters()),
         lr=config["LR"],
@@ -177,3 +177,21 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# => Saving checkpoint
+# Traceback (most recent call last):
+#   File "c:/Users/timur/miniconda3/envs/basicpytorch/style_transfer/CycleGan/train.py", line 179, in <module>
+#     main()
+#   File "c:/Users/timur/miniconda3/envs/basicpytorch/style_transfer/CycleGan/train.py", line 172, in main
+#     save_checkpoint(gen_H, opt_gen, filename=config["SAVE_DIR_GEN_H"])
+#   File "c:\Users\timur\miniconda3\envs\basicpytorch\style_transfer\CycleGan\utils.py", line 10, in save_checkpoint
+#     torch.save(checkpoint, filename)
+#   File "C:\Users\timur\miniconda3\envs\basicpytorch\lib\site-packages\torch\serialization.py", line 376, in save
+#     with _open_file_like(f, 'wb') as opened_file:
+#   File "C:\Users\timur\miniconda3\envs\basicpytorch\lib\site-packages\torch\serialization.py", line 230, in _open_file_like
+#     return _open_file(name_or_buffer, mode)
+#   File "C:\Users\timur\miniconda3\envs\basicpytorch\lib\site-packages\torch\serialization.py", line 211, in __init__
+#     super(_open_file, self).__init__(open(name, mode))
+# FileNotFoundError: [Errno 2] No such file or directory: '/saves/gen_h.pth.tar'
+# ERROR conda.cli.main_run:execute(33): Subprocess for 'conda run ['python', 'c:/Users/timur/miniconda3/envs/basicpytorch/style_transfer/CycleGan/train.py']' command failed.  (See above for error)

@@ -4,33 +4,33 @@ import numpy as np
 from torch.utils.data import Dataset
 
 
-class AppleOrangeDataset(Dataset):
-    def __init__(self, root_orange, root_apple, transform=None):
-        self.root_apple = root_apple
-        self.root_orange = root_orange
+class HorseZebraDataset(Dataset):
+    def __init__(self, root_zebra, root_horse, transform=None):
+        self.root_horse = root_horse
+        self.root_zebra = root_zebra
         self.transform = transform
 
-        self.orange_images = os.listdir(root_orange)
-        self.apple_images = os.listdir(root_apple)
-        self.len_dataset = max(len(self.orange_images), len(self.apple_images))
-        self.orange_len = len(self.orange_images)
-        self.apple_len = len(self.apple_images)
+        self.zebra_images = os.listdir(root_zebra)
+        self.horse_images = os.listdir(root_horse)
+        self.len_dataset = max(len(self.zebra_images), len(self.horse_images))
+        self.zebra_len = len(self.zebra_images)
+        self.horse_len = len(self.horse_images)
 
     def __len__(self):
         return self.len_dataset
 
     def __getitem__(self, index):
-        orange_img = self.orange_images[index % self.orange_len]
-        apple_img = self.apple_images[index % self.apple_len]
+        zebra_img = self.zebra_images[index % self.zebra_len]
+        horse_img = self.horse_images[index % self.horse_len]
 
-        orange_path = os.path.join(self.root_orange, orange_img)
-        apple_path = os.path.join(self.root_apple, apple_img)
+        zebra_path = os.path.join(self.root_zebra, zebra_img)
+        horse_path = os.path.join(self.root_horse, horse_img)
 
-        orange_img = np.array(Image.open(orange_path).convert("RGB"))
-        apple_img = np.array(Image.open(apple_path).convert("RGB"))
+        zebra_img = np.array(Image.open(zebra_path).convert("RGB"))
+        horse_img = np.array(Image.open(horse_path).convert("RGB"))
 
         if self.transform:
-            augmentations = self.transform(image=orange_img, image0=apple_img)
-            orange_img = augmentations["image"]
-            apple_img = augmentations["image0"]
-        return orange_img, apple_img
+            augmentations = self.transform(image=zebra_img, image0=horse_img)
+            zebra_img = augmentations["image"]
+            horse_img = augmentations["image0"]
+        return zebra_img, horse_img

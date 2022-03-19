@@ -14,7 +14,7 @@ config = {
     "LAMBDA_CYCLE": 10,
     "NUM_WORKERS": 4,
     "EPOCHS": 200,
-    "LOAD_MODEL": True,
+    "LOAD_MODEL": False,
     "SAVE_MODEL": True,
     "TRAIN_DIR": "./data/train",
     "TEST_DIR": "./data/test",

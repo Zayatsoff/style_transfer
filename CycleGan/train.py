@@ -1,5 +1,5 @@
 import torch
-from dataset_load import HorseZebraDataset
+from dataset_load import AppleOrangeDataset
 import sys
 from utils import save_checkpoint, load_checkpoint
 from torch.utils.data import DataLoader
@@ -16,22 +16,22 @@ def train_fn(
     disc_H, disc_Z, gen_Z, gen_H, loader, opt_disc, opt_gen, l1, mse, d_scaler, g_scaler
 ):
     loop = tqdm(loader, leave=True)
-    for idx, (zebra, horse) in enumerate(loop):
-        zebra = zebra.to(config["DEVICE"])
-        horse = horse.to(config["DEVICE"])
+    for idx, (orange, apple) in enumerate(loop):
+        orange = orange.to(config["DEVICE"])
+        apple = apple.to(config["DEVICE"])
 
         # Train disc H and Z
         with torch.cuda.amp.autocast():
-            fake_horse = gen_H(zebra)
-            D_H_real = disc_H(horse)
-            D_H_fake = disc_H(fake_horse.detach())
+            fake_apple = gen_H(orange)
+            D_H_real = disc_H(apple)
+            D_H_fake = disc_H(fake_apple.detach())
             D_H_real_loss = mse(D_H_real, torch.ones_like(D_H_real))
             D_H_fake_loss = mse(D_H_fake, torch.ones_like(D_H_fake))
             D_H_loss = D_H_real_loss + D_H_fake_loss
 
-            fake_zebra = gen_Z(horse)
-            D_Z_real = disc_Z(zebra)
-            D_Z_fake = disc_Z(fake_zebra.detach())
+            fake_orange = gen_Z(apple)
+            D_Z_real = disc_Z(orange)
+            D_Z_fake = disc_Z(fake_orange.detach())
             D_Z_real_loss = mse(D_Z_real, torch.ones_like(D_Z_real))
             D_Z_fake_loss = mse(D_Z_fake, torch.ones_like(D_Z_fake))
             D_Z_loss = D_Z_real_loss + D_Z_fake_loss
@@ -47,29 +47,29 @@ def train_fn(
         # train gen H and Z
         with torch.cuda.amp.autocast():
             # adversarial loss for both gens
-            D_H_fake = disc_H(fake_horse)
-            D_Z_fake = disc_Z(fake_zebra)
+            D_H_fake = disc_H(fake_apple)
+            D_Z_fake = disc_Z(fake_orange)
             loss_G_H = mse(D_H_fake, torch.ones_like(D_H_fake))
             loss_G_Z = mse(D_Z_fake, torch.ones_like(D_Z_fake))
 
             # cycle loss
-            cycle_zebra = gen_Z(fake_horse)
-            cycle_horse = gen_H(fake_zebra)
-            cycle_zebra_loss = l1(zebra, cycle_zebra)
-            cycle_horse_loss = l1(horse, cycle_horse)
+            cycle_orange = gen_Z(fake_apple)
+            cycle_apple = gen_H(fake_orange)
+            cycle_orange_loss = l1(orange, cycle_orange)
+            cycle_apple_loss = l1(apple, cycle_apple)
             # indentity loss
-            # indentity_zebra = gen_Z(zebra)
-            # indentity_horse = gen_H(horse)
-            # identity_zebra_loss = l1(zebra, indentity_zebra)
-            # identity_horse_loss = l1(horse, indentity_horse)
+            # indentity_orange = gen_Z(orange)
+            # indentity_apple = gen_H(apple)
+            # identity_orange_loss = l1(orange, indentity_orange)
+            # identity_apple_loss = l1(apple, indentity_apple)
             # add together
             G_loss = (
                 loss_G_Z
                 + loss_G_H
-                + cycle_zebra_loss * config["LAMBDA_CYCLE"]
-                + cycle_horse_loss * config["LAMBDA_CYCLE"]
-                # + identity_horse_loss * config["LAMBDA_IDENTITY"]
-                # + identity_zebra_loss * config["LAMBDA_IDENTITY"]
+                + cycle_orange_loss * config["LAMBDA_CYCLE"]
+                + cycle_apple_loss * config["LAMBDA_CYCLE"]
+                # + identity_apple_loss * config["LAMBDA_IDENTITY"]
+                # + identity_orange_loss * config["LAMBDA_IDENTITY"]
             )
 
         opt_gen.zero_grad()
@@ -77,8 +77,8 @@ def train_fn(
         g_scaler.step(opt_gen)
         g_scaler.update()
         if idx % 200 == 0:
-            save_image(fake_horse * 0.5 * 0.5, f"saved_image/horse_{idx}.png")
-            save_image(fake_zebra * 0.5 * 0.5, f"saved_image/zebra_{idx}.png")
+            save_image(fake_apple * 0.5 * 0.5, f"saved_image/apple_{idx}.png")
+            save_image(fake_orange * 0.5 * 0.5, f"saved_image/orange_{idx}.png")
 
 
 def main():
@@ -127,14 +127,14 @@ def main():
             config["LR"],
         )
 
-    dataset = HorseZebraDataset(
-        root_horse=config["TRAIN_DIR"] + "/horses",
-        root_zebra=config["TRAIN_DIR"] + "/zebras",
+    dataset = AppleOrangeDataset(
+        root_apple=config["TRAIN_DIR"] + "/A",
+        root_orange=config["TRAIN_DIR"] + "/B",
         transform=transforms,
     )
-    val_dataset = HorseZebraDataset(
-        root_horse=config["TEST_DIR"] + "/horses",
-        root_zebra=config["TEST_DIR"] + "/zebras",
+    val_dataset = AppleOrangeDataset(
+        root_apple=config["TEST_DIR"] + "/A",
+        root_orange=config["TEST_DIR"] + "/B",
         transform=transforms,
     )
     val_loader = DataLoader(

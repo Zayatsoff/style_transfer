@@ -64,3 +64,32 @@ generated = og_img.clone().requires_grad_(True)
 # generated = torch.randn(load_image(image["galilee"]).shape, device=device, requires_grad=True)
 
 optimizer = optim.Adam([generated], lr=config["lr"])
+for step in range(config["total_steps"]):
+    gen_features = model(generated)
+    og_img_features = model(og_img)
+    style_features = model(style_img)
+
+    style_loss = og_loss = 0
+
+    for (
+        gen_feature,
+        og_feature,
+        style_feature,
+    ) in zip(gen_features, og_img_features, style_features):
+        batch_size, channel, height, width = gen_feature.shape
+        og_loss += torch.mean((gen_feature - og_feature) ** 2)
+
+        # compute gram matrix
+        G = gen_feature.view(channel, height * width).mm(
+            gen_feature.view(channel, height * width).t()
+        )
+
+        A = style_feature.view(channel, height * width).mm(
+            style.view(channel, height * width).t()
+        )
+        style_loss += torch.mean((G - A) ** 2)
+    total_loss = config["alpha"] * config["beta"] * style_loss
+    optimizer.zero_grad()
+    total_loss.backward()
+    optimizer.step()
+

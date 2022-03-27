@@ -91,7 +91,7 @@ def style_loss(gen_features, og_img_features, style_features, style_loss):
         return style_loss
 
 
-img_size = 1000
+img_size = 500
 
 loader = transforms.Compose(
     [

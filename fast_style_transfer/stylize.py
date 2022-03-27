@@ -93,3 +93,6 @@ for step in range(config["total_steps"]):
     total_loss.backward()
     optimizer.step()
 
+    if step % 200 == 0:
+        print("total loss : ", total_loss)
+        save_image(generated, "generated.png")

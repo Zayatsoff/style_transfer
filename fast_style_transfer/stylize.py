@@ -79,13 +79,12 @@ def style_loss(gen_features, og_img_features, style_features, style_loss):
     ) in zip(gen_features, og_img_features, style_features):
         batch_size, channel, height, width = gen_feature.shape
         # compute gram matrix
-        G = gen_feature.view(channel, height * width).mm(
-            gen_feature.view(channel, height * width).t()
-        )
+        G = gen_feature.view(channel, height * width) - 1
+        G = torch.mm(G, G.transpose(0, 1))
 
-        A = style_feature.view(channel, height * width).mm(
-            style_feature.view(channel, height * width).t()
-        )
+        A = style_feature.view(channel, height * width) - 1
+        A = torch.mm(A, A.transpose(0, 1))
+
         style_loss += torch.mean((G - A) ** 2)
         return style_loss
 

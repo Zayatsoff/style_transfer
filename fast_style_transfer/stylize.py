@@ -47,3 +47,11 @@ loader = transforms.Compose(
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ]
 )
+
+
+generated = torch.randn(
+    load_image(image["galilee"]).shape, device=device, requires_grad=True
+)
+generated = load_image(image["galilee"]).clone().requires_grad_(True)
+
+# Hyperparams

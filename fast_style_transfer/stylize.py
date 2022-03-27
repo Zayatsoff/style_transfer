@@ -10,7 +10,14 @@ device = torch.device("cuda" if torch.cuda.is_available else "cpu")
 # layers 0-5-10-19-28
 model = models.vgg19(pretrained=True).features
 
-image = {"galilee": "./styles/galilee.jpg"}
+# Hyperparams
+config = {
+    "total_steps": 6000,
+    "lr": 0.001,
+    "alpha": 1,
+    "beta": 0.01,
+}
+img = {"galilee": "./styles/galilee.jpg"}
 
 style = {"monalisa": "./styles/monalisa.jpg"}
 
@@ -32,26 +39,20 @@ class VGG19(nn.Module):
         return features
 
 
-def load_image(image_name):
-    image = Image.open(image_name)
-    image_loader = loader(image).unsqueeze(0)
-    return image.to(device)
+def load_img(image_name):
+    img = Image.open(image_name)
+    img_loader = loader(img).unsqueeze(0)
+    return img.to(device)
 
 
-image_size = 356
+img_size = 356
 
 loader = transforms.Compose(
     [
-        transforms.Resize(image_size),
+        transforms.Resize(img_size),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ]
 )
 
 
-generated = torch.randn(
-    load_image(image["galilee"]).shape, device=device, requires_grad=True
-)
-generated = load_image(image["galilee"]).clone().requires_grad_(True)
-
-# Hyperparams

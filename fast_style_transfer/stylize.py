@@ -4,11 +4,15 @@ import torch.optim as optim
 from PIL import Image
 import torchvision.transforms as transforms
 import torchvision.models as models
-from torchvision.utils import save_image
+from torchvision.utils import save_image, load_image
 
 device = torch.device("cuda" if torch.cuda.is_available else "cpu")
 # layers 0-5-10-19-28
 model = models.vgg19(pretrained=True).features
+
+image = {"galilee": "./styles/galilee.jpg"}
+
+style = {"monalisa": "./styles/monalisa.jpg"}
 
 
 class VGG19(nn.Module):
@@ -27,10 +31,11 @@ class VGG19(nn.Module):
                 features.append(x)
         return features
 
-    def load_image(image_name):
-        image = Image.open(image_name)
-        image_loader = loader(image).unsqueeze(0)
-        return image.to(device)
+
+def load_image(image_name):
+    image = Image.open(image_name)
+    image_loader = loader(image).unsqueeze(0)
+    return image.to(device)
 
 
 image_size = 356

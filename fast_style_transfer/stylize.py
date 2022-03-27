@@ -56,3 +56,11 @@ loader = transforms.Compose(
 )
 
 
+# freeze the weights
+model = VGG19().to(device).eval()
+og_img = load_img(img["galilee"])
+style_img = load_img(img["monalisa"])
+generated = og_img.clone().requires_grad_(True)
+# generated = torch.randn(load_image(image["galilee"]).shape, device=device, requires_grad=True)
+
+optimizer = optim.Adam([generated], lr=config["lr"])

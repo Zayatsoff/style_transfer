@@ -17,8 +17,8 @@ config = {
     "content_weight": 0.0025,  # default value
     "total_variation_weight": 8.5e-5,  # default value
 }
-img = {"img0": "./styles/galilee.jpg"}
-style = {"style0": "./styles/artem-demura.jpg"}
+img = {"img0": "./content/galilee.jpg"}
+style = {"style0": "./styles/vangogh.jpg"}
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -43,7 +43,7 @@ class VGG19(nn.Module):
             "48",
             "51",
         ]
-        self.model = models.vgg19(pretrained=True).features[:29]
+        self.model = models.vgg19(pretrained=True).features
 
     def forward(self, x):
         features = []
@@ -91,11 +91,12 @@ def style_loss(gen_features, og_img_features, style_features, style_loss):
         return style_loss
 
 
-img_size = 356
+img_size = 1000
 
 loader = transforms.Compose(
     [
-        transforms.Resize((img_size, img_size)),
+        transforms.Resize(img_size),
+        transforms.CenterCrop((img_size, img_size)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ]

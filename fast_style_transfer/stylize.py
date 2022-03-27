@@ -6,7 +6,7 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 from torchvision.utils import save_image
 
-# changed: - all 16 layerss of vgg19
+# changes: - all 16 layerss of vgg19 - Shift Activation
 
 # Hyperparams
 config = {
@@ -14,9 +14,11 @@ config = {
     "lr": 0.001,
     "alpha": 1,
     "beta": 0.01,
+    "content_weight": 0.0025,  # default value
+    "total_variation_weight": 8.5e-5,  # default value
 }
 img = {"img0": "./styles/galilee.jpg"}
-style = {"style0": "./styles/monalisa.jpg"}
+style = {"style0": "./styles/artem-demura.jpg"}
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 

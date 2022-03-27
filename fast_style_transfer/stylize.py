@@ -6,6 +6,7 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 from torchvision.utils import save_image
 
+# changed: - all 16 layerss of vgg19
 
 # Hyperparams
 config = {
@@ -22,7 +23,24 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class VGG19(nn.Module):
     def __init__(self):
         super(VGG19, self).__init__()
-        self.chosen_features = ["0", "5", "10", "19", "28"]
+        self.chosen_features = [
+            "2",
+            "5",
+            "9",
+            "12",
+            "16",
+            "19",
+            "22",
+            "25",
+            "29",
+            "32",
+            "35",
+            "38",
+            "42",
+            "45",
+            "48",
+            "51",
+        ]
         self.model = models.vgg19(pretrained=True).features[:29]
 
     def forward(self, x):
@@ -40,6 +58,36 @@ def load_img(image_name):
     img = Image.open(image_name)
     img = loader(img).unsqueeze(0)
     return img.to(device)
+
+
+def content_loss(gen_features, c_features, style_features, c_loss):
+    for (
+        gen_feature,
+        c_feature,
+        style_feature,
+    ) in zip(gen_features, c_features, style_features):
+        batch_size, channel, height, width = gen_feature.shape
+        c_loss += torch.mean((gen_feature - c_feature) ** 2)
+        return c_loss
+
+
+def style_loss(gen_features, og_img_features, style_features, style_loss):
+    for (
+        gen_feature,
+        og_feature,
+        style_feature,
+    ) in zip(gen_features, og_img_features, style_features):
+        batch_size, channel, height, width = gen_feature.shape
+        # compute gram matrix
+        G = gen_feature.view(channel, height * width).mm(
+            gen_feature.view(channel, height * width).t()
+        )
+
+        A = style_feature.view(channel, height * width).mm(
+            style_feature.view(channel, height * width).t()
+        )
+        style_loss += torch.mean((G - A) ** 2)
+        return style_loss
 
 
 img_size = 356
@@ -66,37 +114,19 @@ invTrans = transforms.Compose(
 model = VGG19().to(device).eval()
 og_img = load_img(img["img0"])
 style_img = load_img(style["style0"])
-# generated = og_img.clone().requires_grad_(True)
-generated = torch.randn(
-    load_img(img["galilee"]).shape, device=device, requires_grad=True
-)
+generated = og_img.clone().requires_grad_(True)
+# generated = torch.randn(load_img(img["img0"]).shape, device=device, requires_grad=True)
 
 optimizer = optim.Adam([generated], lr=config["lr"])
 for step in range(config["total_steps"]):
     gen_features = model(generated)
-    og_img_features = model(og_img)
-    style_features = model(style_img)
+    c_features = model(og_img)
+    s_features = model(style_img)
 
-    style_loss = og_loss = 0
-
-    for (
-        gen_feature,
-        og_feature,
-        style_feature,
-    ) in zip(gen_features, og_img_features, style_features):
-        batch_size, channel, height, width = gen_feature.shape
-        og_loss += torch.mean((gen_feature - og_feature) ** 2)
-
-        # compute gram matrix
-        G = gen_feature.view(channel, height * width).mm(
-            gen_feature.view(channel, height * width).t()
-        )
-
-        A = style_feature.view(channel, height * width).mm(
-            style_feature.view(channel, height * width).t()
-        )
-        style_loss += torch.mean((G - A) ** 2)
-    total_loss = config["alpha"] * og_loss + config["beta"] * style_loss
+    s_loss = c_loss = 0
+    c_loss = content_loss(gen_features, c_features, s_features, c_loss)
+    s_loss = style_loss(gen_features, c_features, s_features, s_loss)
+    total_loss = config["alpha"] * c_loss + config["beta"] * s_loss
     optimizer.zero_grad()
     total_loss.backward()
     optimizer.step()

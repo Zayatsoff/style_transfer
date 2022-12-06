@@ -3,7 +3,7 @@ PyTorch implementation of [A Neural Algorithm of Artistic Style](https://arxiv.o
 
 Differences:
 
-* All 16 layesr of VGG19 are used instead of just a couple.
+* 16 layesr of VGG19 are used instead of just a couple.
 * Shift activation has been implemenetd from [Improving the Neural Algorithm of Artistic Style](https://arxiv.org/abs/1605.04603) by Novak and Nikulin.
 
 ![Image1](https://github.com/Zayatsoff/style_transfer/blob/main/fast_style_transfer/images/final/final.png)
